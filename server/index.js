@@ -15,7 +15,7 @@ import { subjectsRouter } from './routes/subjects.js';
 import { registerSocketHandlers } from './sockets/index.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const clientDist = path.join(__dirname, '..', 'client', 'dist');
+const clientDist = path.resolve(__dirname, '..', 'client', 'dist');
 
 const app = express();
 const httpServer = createServer(app);
@@ -39,11 +39,14 @@ if (existsSync(clientDist)) {
   app.use(express.static(clientDist));
   app.get('*', (_, res) => res.sendFile(path.join(clientDist, 'index.html')));
   console.log('Serving built client from client/dist');
+} else {
+  console.warn('Client build not found at', clientDist);
+  console.warn('Run "npm run build" from the project root, then restart the server.');
 }
 
 registerSocketHandlers(io);
 
-const PORT = process.env.PORT || 5004;
+const PORT = process.env.PORT || 3000;
 
 connectDb()
   .then(() => {
