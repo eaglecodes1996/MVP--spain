@@ -7,7 +7,9 @@
     "server": "node run-server.js",
     "client": "cd client && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "cd client && npm run build",
+    "build": "npm run build:client",
+    "build:client": "cd client && npm run build",
+    "start": "node run-server.js",
     "install:all": "npm install && cd client && npm install"
   },
   "dependencies": {

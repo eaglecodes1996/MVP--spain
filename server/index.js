@@ -3,7 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import mongoose from 'mongoose';
+import path from 'path';
+import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
 
 import { connectDb } from './config/db.js';
 import { aiRouter } from './routes/ai.js';
@@ -11,6 +13,9 @@ import { forumRouter } from './routes/forum.js';
 import { supportRouter } from './routes/support.js';
 import { subjectsRouter } from './routes/subjects.js';
 import { registerSocketHandlers } from './sockets/index.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const clientDist = path.join(__dirname, '..', 'client', 'dist');
 
 const app = express();
 const httpServer = createServer(app);
@@ -28,6 +33,13 @@ app.use('/api/support', supportRouter);
 app.use('/api/subjects', subjectsRouter);
 
 app.get('/api/health', (_, res) => res.json({ ok: true }));
+
+// Serve built client when present (build then run server)
+if (existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get('*', (_, res) => res.sendFile(path.join(clientDist, 'index.html')));
+  console.log('Serving built client from client/dist');
+}
 
 registerSocketHandlers(io);
 
